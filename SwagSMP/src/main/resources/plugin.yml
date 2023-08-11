@@ -1,0 +1,7 @@
+name: SwagSMP Core
+version: '${project.version}'
+main: com.beauver.swagsmp.SwagSMPCore
+api-version: '1.20'
+authors: [ Beauver ]
+description: A plugin for the Minecraft Server SwagSMP
+website: https://beauver.com/
