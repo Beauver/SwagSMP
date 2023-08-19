@@ -47,7 +47,7 @@
                                 </relocation>
                             </relocations>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <outputDirectory>C:\Users\2006091401\Documents\Minecraft Server\SwagSMP\plugins</outputDirectory>
+                            <outputDirectory>D:\Minecraft Server\SwagSMP\plugins</outputDirectory>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>shaded</shadedClassifierName>
                         </configuration>
