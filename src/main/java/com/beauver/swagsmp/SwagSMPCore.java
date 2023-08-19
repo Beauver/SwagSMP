@@ -6,7 +6,6 @@ public final class SwagSMPCore extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
 
         enableCommands();
         enableListeners();
