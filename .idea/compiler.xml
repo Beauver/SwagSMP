@@ -9,8 +9,5 @@
         <module name="SwagSMP" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="SwagSMP" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>
