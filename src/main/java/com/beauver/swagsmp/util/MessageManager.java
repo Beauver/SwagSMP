@@ -5,7 +5,7 @@ import net.kyori.adventure.text.format.TextColor;
 
 public class MessageManager {
 
-    public static Component messageGenerator(String severity, String message) {
+    public static Component messageGenerator(String severity, String type, String message) {
         String txtcolor = "#7d818d";
         switch (severity) {
             case "SUCCESS":
@@ -20,12 +20,12 @@ public class MessageManager {
         }
 
         return Component.text()
-                .append(Component.text("[SwagSMP - PvP]").color(TextColor.fromHexString(txtcolor)))
-                .append(Component.text(" " + message).color(TextColor.fromHexString(txtcolor)))
+                .append(Component.text("[SwagSMP - " + type + "]").color(TextColor.fromHexString(txtcolor)))
+                .append(Component.text("\n" + message).color(TextColor.fromHexString(txtcolor)))
                 .build();
     }
 
-    public static Component messageGenerator(String severity, Component message) {
+    public static Component messageGenerator(String severity, String type, Component message) {
         String txtcolor = "#7d818d";
         switch (severity) {
             case "SUCCESS":
@@ -40,8 +40,8 @@ public class MessageManager {
         }
 
         return Component.text()
-                .append(Component.text("[SwagSMP - PvP]").append(message.color(TextColor.fromHexString(txtcolor))))
-                .append(Component.text(" ").append(message.color(TextColor.fromHexString(txtcolor))))
+                .append(Component.text("[SwagSMP - " + type + "]").color(TextColor.fromHexString(txtcolor))
+                .append(Component.text("\n").append(message.color(TextColor.fromHexString(txtcolor)))))
                 .build();
     }
 }

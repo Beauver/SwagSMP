@@ -25,14 +25,13 @@ public class PlayerJoin implements Listener {
         playerDataManager.createData(player.getUniqueId(), "isOnline", true);
 
         //sending messages
-        player.sendMessage(MessageManager.messageGenerator("WARNING",
+        player.sendMessage(MessageManager.messageGenerator("WARNING", "PvP",
                         Component.text("You can currently not engage in PvP."))
-                .append(Component.text("To change this please write: /pvp")).clickEvent(ClickEvent.runCommand("/pvp")));
+                .append(Component.text("\nTo change this please write: /pvp")).clickEvent(ClickEvent.runCommand("/pvp")));
     }
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         playerDataManager.createData(player.getUniqueId(), "isOnline", false);
     }
-
 }

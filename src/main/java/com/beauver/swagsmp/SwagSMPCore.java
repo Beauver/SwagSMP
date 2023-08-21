@@ -3,6 +3,7 @@ package com.beauver.swagsmp;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.PaperCommandManager;
 import com.beauver.swagsmp.commands.PvPCommand;
+import com.beauver.swagsmp.listeners.PlayerDamage;
 import com.beauver.swagsmp.util.PlayerDataManager;
 import com.beauver.swagsmp.listeners.PlayerJoin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -33,6 +34,7 @@ public final class SwagSMPCore extends JavaPlugin {
     public void enableListeners(){
 
         this.getServer().getPluginManager().registerEvents(new PlayerJoin(playerDataManager), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerDamage(playerDataManager), this);
         getLogger().info("|   Enabled listeners                                  |");
 
     }

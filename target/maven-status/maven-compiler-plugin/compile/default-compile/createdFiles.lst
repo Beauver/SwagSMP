@@ -1,5 +1,6 @@
+com\beauver\swagsmp\listeners\PlayerJoin.class
+com\beauver\swagsmp\util\PlayerDataManager.class
 com\beauver\swagsmp\SwagSMPCore.class
 com\beauver\swagsmp\util\MessageManager.class
-com\beauver\swagsmp\listeners\PlayerJoin.class
+com\beauver\swagsmp\listeners\PlayerDamage.class
 com\beauver\swagsmp\commands\PvPCommand.class
-com\beauver\swagsmp\util\PlayerDataManager.class
