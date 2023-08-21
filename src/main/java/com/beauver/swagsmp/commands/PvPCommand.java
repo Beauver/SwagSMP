@@ -67,9 +67,14 @@ public class PvPCommand extends BaseCommand {
         //gets the player from the target name
         Player targetPlayer = Bukkit.getPlayer(target);
 
+        if(args.length < 1){
+            player.sendMessage(MessageManager.messageGenerator("ERROR", "PvP OVERWRITE", "please specify a player."));
+            return;
+        }
+
         //if the target does not exist, say they're offline.
         if(targetPlayer == null){
-            player.sendMessage(MessageManager.messageGenerator("ERROR", "PvP OVERWRITE", Bukkit.getOfflinePlayer(target).getName() + "is currently offline."));
+            player.sendMessage(MessageManager.messageGenerator("ERROR", "PvP OVERWRITE", Bukkit.getOfflinePlayer(target).getName() + " is currently offline."));
             return;
         }
 
