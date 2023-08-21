@@ -1,5 +1,5 @@
 name: SwagSMPCore
-version: '${project.version}'
+version: '1.0-SNAPSHOT'
 main: com.beauver.swagsmp.SwagSMPCore
 api-version: '1.20'
 authors: [ Beauver ]
