@@ -70,15 +70,10 @@ public class PvPCommand extends BaseCommand {
         if(args.length < 1){
             player.sendMessage(MessageManager.messageGenerator("ERROR", "PvP OVERWRITE", "please specify a player."));
             return;
-        }
-
-        //if the target does not exist, say they're offline.
-        if(targetPlayer == null){
+        }else if(targetPlayer == null){
             player.sendMessage(MessageManager.messageGenerator("ERROR", "PvP OVERWRITE", Bukkit.getOfflinePlayer(target).getName() + " is currently offline."));
             return;
-        }
-
-        if(targetPlayer.getUniqueId().equals(player.getUniqueId())){
+        }else if(targetPlayer.getUniqueId().equals(player.getUniqueId())){
             player.sendMessage(MessageManager.messageGenerator("ERROR", "PvP OVERWRITE", "You can not overwrite your own PvP status, click here to enable/disable your PvP").clickEvent(ClickEvent.runCommand("/pvp")));
             return;
         }

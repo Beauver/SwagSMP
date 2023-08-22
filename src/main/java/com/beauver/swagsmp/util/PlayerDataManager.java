@@ -7,11 +7,8 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class PlayerDataManager {
 
@@ -21,7 +18,11 @@ public class PlayerDataManager {
     public PlayerDataManager(Plugin plugin) {
         this.plugin = plugin;
         this.dataFolder = new File(Bukkit.getPluginsFolder().getAbsolutePath(), "SwagSMP/playerData");
-        dataFolder.mkdirs();
+
+        boolean directoriesCreated = dataFolder.mkdirs();
+        if (!directoriesCreated && !(dataFolder.exists())) {
+            plugin.getLogger().warning("Failed to create data directories.");
+        }
     }
 
     private File getPlayerFile(UUID playerUUID) {
@@ -91,27 +92,43 @@ public class PlayerDataManager {
         }
     }
 
-    public void createData(UUID playerUUID, String dataType, Object values) {
+    public void createDataListString(UUID playerUUID, String dataType, List<String> values) {
         File playerFile = getPlayerFile(playerUUID);
         if (playerFile == null) {
             plugin.getLogger().warning("Player File does not exist.");
         } else {
             FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
-
-            if (values instanceof String[]) {
-                config.set(dataType, Arrays.asList((String[]) values));
-            } else if (values instanceof int[]) {
-                List<Integer> intList = Arrays.stream((int[]) values).boxed().collect(Collectors.toList());
-                config.set(dataType, intList);
-            } else if (values instanceof boolean[]) {
-                boolean[] boolArray = (boolean[]) values;
-                List<Boolean> booleanList = new ArrayList<>(boolArray.length);
-                for (boolean value : boolArray) {
-                    booleanList.add(value);
-                }
-                config.set(dataType, booleanList);
+            config.set(dataType, values);
+            try {
+                config.save(playerFile);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        }
+    }
 
+    public void createDataListInt(UUID playerUUID, String dataType, List<Integer> values) {
+        File playerFile = getPlayerFile(playerUUID);
+        if (playerFile == null) {
+            plugin.getLogger().warning("Player File does not exist.");
+        } else {
+            FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
+            config.set(dataType, values);
+            try {
+                config.save(playerFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void createDataListBoolean(UUID playerUUID, String dataType, List<Boolean> values) {
+        File playerFile = getPlayerFile(playerUUID);
+        if (playerFile == null) {
+            plugin.getLogger().warning("Player File does not exist.");
+        } else {
+            FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
+            config.set(dataType, values);
             try {
                 config.save(playerFile);
             } catch (IOException e) {
@@ -123,52 +140,88 @@ public class PlayerDataManager {
     // ALL READ FUNCTIONS
     public String readDataString(UUID playerUUID, String dataType) {
         File playerFile = getPlayerFile(playerUUID);
+
+        if (playerFile == null || !playerFile.exists()) {
+            plugin.getLogger().warning("Player File does not exist.");
+            return null; // Return a default value or handle the case when the file doesn't exist
+        }
+
         FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
         return config.getString(dataType);
     }
 
     public int readDataInt(UUID playerUUID, String dataType) {
         File playerFile = getPlayerFile(playerUUID);
+
+        if (playerFile == null || !playerFile.exists()) {
+            plugin.getLogger().warning("Player File does not exist.");
+            return -1; // Return a default value or handle the case when the file doesn't exist
+        }
+
         FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
         return config.getInt(dataType);
     }
 
     public boolean readDataBoolean(UUID playerUUID, String dataType) {
         File playerFile = getPlayerFile(playerUUID);
+
+        if (playerFile == null || !playerFile.exists()) {
+            plugin.getLogger().warning("Player File does not exist.");
+            return false; // Return a default value or handle the case when the file doesn't exist
+        }
+
         FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
         return config.getBoolean(dataType);
     }
 
-    public Object readDataArray(UUID playerUUID, String dataType) {
+
+    public List<String> readDataListString(UUID playerUUID, String dataType) {
         File playerFile = getPlayerFile(playerUUID);
-        FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
 
-        List<?> dataList = config.getList(dataType);
-
-        if (dataList != null) {
-            Object[] dataArray = dataList.toArray();
-            if (dataArray instanceof String[]) {
-                return (String[]) dataArray;
-            } else if (dataArray instanceof Integer[]) {
-                return Arrays.stream((Integer[]) dataArray).mapToInt(Integer::intValue).toArray();
-            } else if (dataArray instanceof Boolean[]) {
-                boolean[] boolArray = new boolean[dataArray.length];
-                for (int i = 0; i < dataArray.length; i++) {
-                    boolArray[i] = (boolean) dataArray[i];
-                }
-                return boolArray;
-            }
+        if (playerFile == null || !playerFile.exists()) {
+            plugin.getLogger().warning("Player File does not exist.");
+            return null; // Return a default value or handle the case when the file doesn't exist
         }
 
-        // Add more cases for other array types as needed
-
-        return null;
+        FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
+        return config.getStringList(dataType);
     }
+
+    public List<Integer> readDataListInt(UUID playerUUID, String dataType) {
+        File playerFile = getPlayerFile(playerUUID);
+
+        if (playerFile == null || !playerFile.exists()) {
+            plugin.getLogger().warning("Player File does not exist.");
+            return null; // Return a default value or handle the case when the file doesn't exist
+        }
+
+        FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
+        return config.getIntegerList(dataType);
+    }
+
+    public List<Boolean> readDataListBoolean(UUID playerUUID, String dataType) {
+        File playerFile = getPlayerFile(playerUUID);
+
+        if (playerFile == null || !playerFile.exists()) {
+            plugin.getLogger().warning("Player File does not exist.");
+            return null; // Return a default value or handle the case when the file doesn't exist
+        }
+
+        FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
+        return config.getBooleanList(dataType);
+    }
+
 
 
     //ALL UPDATE FUNCTIONS
     public void updateData(UUID playerUUID, String dataType, String newValue) {
         File playerFile = getPlayerFile(playerUUID);
+
+        if (playerFile == null || !playerFile.exists()) {
+            plugin.getLogger().warning("Player File does not exist.");
+            return; // Return a default value or handle the case when the file doesn't exist
+        }
+
         FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
         config.set(dataType, newValue);
         try {
@@ -180,6 +233,12 @@ public class PlayerDataManager {
 
     public void updateData(UUID playerUUID, String dataType, boolean newValue) {
         File playerFile = getPlayerFile(playerUUID);
+
+        if (playerFile == null || !playerFile.exists()) {
+            plugin.getLogger().warning("Player File does not exist.");
+            return; // Return a default value or handle the case when the file doesn't exist
+        }
+
         FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
         config.set(dataType, newValue);
         try {
@@ -191,6 +250,12 @@ public class PlayerDataManager {
 
     public void updateData(UUID playerUUID, String dataType, int newValue) {
         File playerFile = getPlayerFile(playerUUID);
+
+        if (playerFile == null || !playerFile.exists()) {
+            plugin.getLogger().warning("Player File does not exist.");
+            return; // Return a default value or handle the case when the file doesn't exist
+        }
+
         FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
         config.set(dataType, newValue);
         try {
@@ -200,36 +265,60 @@ public class PlayerDataManager {
         }
     }
 
-    public void updateDataArray(UUID playerUUID, String dataType, Object newValues) {
+    public void updateDataArrayString(UUID playerUUID, String dataType, List<String> newValues) {
         File playerFile = getPlayerFile(playerUUID);
-        assert playerFile != null;
-        FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
-
-        if (newValues instanceof String[]) {
-            config.set(dataType, Arrays.asList((String[]) newValues));
-        } else if (newValues instanceof int[]) {
-            List<Integer> intList = Arrays.stream((int[]) newValues).boxed().collect(Collectors.toList());
-            config.set(dataType, intList);
-        } else if (newValues instanceof boolean[]) {
-            boolean[] boolArray = (boolean[]) newValues;
-            List<Boolean> booleanList = new ArrayList<>(boolArray.length);
-            for (boolean value : boolArray) {
-                booleanList.add(value);
+        if (playerFile == null) {
+            plugin.getLogger().warning("Player File does not exist.");
+        } else {
+            FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
+            config.set(dataType, newValues);
+            try {
+                config.save(playerFile);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            config.set(dataType, booleanList);
         }
-        // Add more cases for other array types if needed
+    }
 
-        try {
-            config.save(playerFile);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void updateDataArrayInt(UUID playerUUID, String dataType, List<Integer> newValues) {
+        File playerFile = getPlayerFile(playerUUID);
+        if (playerFile == null) {
+            plugin.getLogger().warning("Player File does not exist.");
+        } else {
+            FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
+            config.set(dataType, newValues);
+            try {
+                config.save(playerFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void updateDataArrayBoolean(UUID playerUUID, String dataType, List<Boolean> newValues) {
+        File playerFile = getPlayerFile(playerUUID);
+        if (playerFile == null) {
+            plugin.getLogger().warning("Player File does not exist.");
+        } else {
+            FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
+            config.set(dataType, newValues);
+            try {
+                config.save(playerFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     //DELETE FUNCTION
     public void deleteData(UUID playerUUID, String dataType) {
         File playerFile = getPlayerFile(playerUUID);
+
+        if (playerFile == null || !playerFile.exists()) {
+            plugin.getLogger().warning("Player File does not exist.");
+            return; // Return a default value or handle the case when the file doesn't exist
+        }
+
         FileConfiguration config = YamlConfiguration.loadConfiguration(playerFile);
         config.set(dataType, null);
         try {
