@@ -4,6 +4,11 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.PaperCommandManager;
 import com.beauver.swagsmp.commands.PvPCommand;
 import com.beauver.swagsmp.commands.ReportCommand;
+import com.beauver.swagsmp.commands.moderation.BanCommand;
+import com.beauver.swagsmp.commands.moderation.ClearChatCommand;
+import com.beauver.swagsmp.commands.moderation.KickCommand;
+import com.beauver.swagsmp.commands.moderation.MuteCommand;
+import com.beauver.swagsmp.handlers.KickHandler;
 import com.beauver.swagsmp.listeners.PlayerDamage;
 import com.beauver.swagsmp.util.PlayerDataManager;
 import com.beauver.swagsmp.listeners.PlayerJoin;
@@ -33,17 +38,23 @@ public final class SwagSMPCore extends JavaPlugin {
 
     public void enableCommands(){
         PaperCommandManager manager = new PaperCommandManager(this);
+        //Moderation commands
+        manager.registerCommand(new BanCommand(playerDataManager));
+        manager.registerCommand(new KickCommand());
+        manager.registerCommand(new MuteCommand());
+        manager.registerCommand(new ClearChatCommand());
+        //player commands
         manager.registerCommand(new PvPCommand(playerDataManager));
         manager.registerCommand(new ReportCommand(playerDataManager));
 
-        getLogger().info("|   Enabled commands                                  |");
+        getLogger().info("|   Enabled commands                                     |");
     }
 
     public void enableListeners(){
 
         this.getServer().getPluginManager().registerEvents(new PlayerJoin(playerDataManager), this);
         this.getServer().getPluginManager().registerEvents(new PlayerDamage(playerDataManager), this);
-        getLogger().info("|   Enabled listeners                                  |");
+        getLogger().info("|   Enabled listeners                                    |");
 
     }
 

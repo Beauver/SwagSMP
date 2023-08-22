@@ -1,5 +1,6 @@
 package com.beauver.swagsmp.listeners;
 
+import com.beauver.swagsmp.handlers.KickHandler;
 import com.beauver.swagsmp.util.MessageManager;
 import com.beauver.swagsmp.util.PlayerDataManager;
 import net.kyori.adventure.text.Component;
@@ -7,6 +8,8 @@ import net.kyori.adventure.text.event.ClickEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -33,5 +36,19 @@ public class PlayerJoin implements Listener {
     public void onPlayerLeave(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         playerDataManager.createData(player.getUniqueId(), "isOnline", false);
+    }
+
+    @EventHandler
+    public void onPlayerPreLogin(PlayerJoinEvent event){
+        Player player = event.getPlayer();
+
+        if(playerDataManager.readDataBoolean(player.getUniqueId(), "banned")){
+            String appealCode = playerDataManager.readDataString(player.getUniqueId(), "appealCode");
+            String banReason = playerDataManager.readDataString(player.getUniqueId(), "banReason");
+            String bannedBy = playerDataManager.readDataString(player.getUniqueId(), "bannedBy");
+
+            KickHandler.kickBanPlayer(player, banReason, bannedBy, appealCode);
+        }
+
     }
 }
