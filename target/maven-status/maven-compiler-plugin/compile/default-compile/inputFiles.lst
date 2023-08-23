@@ -1,3 +1,15 @@
 D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\listeners\PlayerJoin.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\commands\moderation\BanCommand.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\commands\moderation\ClearChatCommand.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\util\CodeGenerators.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\listeners\PlayerDamage.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\util\GuiItems.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\commands\moderation\MuteCommand.java
 D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\SwagSMPCore.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\commands\moderation\KickCommand.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\handlers\KickHandler.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\util\MessageManager.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\commands\ReportCommand.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\util\CalculateDates.java
 D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\util\PlayerDataManager.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\commands\PvPCommand.java

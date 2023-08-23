@@ -41,15 +41,12 @@ public class ReportCommand extends BaseCommand {
         //splits the playerName from the joined argument list
         String target = splitArgs[0];
         //gets the player from the target name
-        Player targetPlayer = Bukkit.getPlayer(target);
+        OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(target);
 
 
         //various target checks
         if(args.length < 1){
             player.sendMessage(MessageManager.messageGenerator("ERROR", "Report", "please specify a player."));
-            return;
-        }else if(targetPlayer == null){
-            player.sendMessage(MessageManager.messageGenerator("ERROR", "Report", Bukkit.getOfflinePlayer(target).getName() + " is currently offline."));
             return;
         }else if(targetPlayer.getUniqueId().equals(player.getUniqueId())){
             player.sendMessage(MessageManager.messageGenerator("ERROR", "Report", "You can not report yourself."));

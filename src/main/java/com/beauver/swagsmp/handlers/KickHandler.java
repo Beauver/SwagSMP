@@ -10,6 +10,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.awt.*;
+import java.util.Date;
 
 public class KickHandler {
 
@@ -31,6 +32,20 @@ public class KickHandler {
                 .append(Component.text(playerWhoKicked)).color(TextColor.fromHexString("#f09c0b"))
                 .append(Component.text("\nExpires: ", Style.style(TextDecoration.BOLD)).color(TextColor.fromHexString("#d82625")))
                 .append(Component.text("never")).color(TextColor.fromHexString("#f09c0b"))
+                .append(Component.text("\nAppeal Code: ", Style.style(TextDecoration.BOLD)).color(TextColor.fromHexString("#d82625")))
+                .append(Component.text(appealCode)).color(TextColor.fromHexString("#f09c0b")));
+
+    }
+
+    public static void kickBanPlayer(Player player, String reason, String playerWhoKicked, String appealCode, Date date) {
+
+        player.kick(MessageManager.messageGenerator("ERROR", "Ban", Component.text("", Style.style(TextDecoration.BOLD)))
+                .append(Component.text("\nReason: ", Style.style(TextDecoration.BOLD)).color(TextColor.fromHexString("#d82625")))
+                .append(Component.text(reason).color(TextColor.fromHexString("#f09c0b")))
+                .append(Component.text("\nBanned By: ", Style.style(TextDecoration.BOLD)).color(TextColor.fromHexString("#d82625")))
+                .append(Component.text(playerWhoKicked)).color(TextColor.fromHexString("#f09c0b"))
+                .append(Component.text("\nExpires: ", Style.style(TextDecoration.BOLD)).color(TextColor.fromHexString("#d82625")))
+                .append(Component.text(String.valueOf(date))).color(TextColor.fromHexString("#f09c0b"))
                 .append(Component.text("\nAppeal Code: ", Style.style(TextDecoration.BOLD)).color(TextColor.fromHexString("#d82625")))
                 .append(Component.text(appealCode)).color(TextColor.fromHexString("#f09c0b")));
 
