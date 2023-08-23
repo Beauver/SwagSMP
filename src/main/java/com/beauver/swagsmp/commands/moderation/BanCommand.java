@@ -359,6 +359,7 @@ public class BanCommand extends BaseCommand {
                         String itemName = itemMeta.getDisplayName();
                         //remove function
                         onUnban(player, itemName);
+                        onBanlist(player, new String[]{String.valueOf(finalNextPage)});
                     }else if(clickedItem != null && clickedItem.getType() == Material.BARRIER && clickedItem.getItemMeta().getCustomModelData() ==  1){
                         gui.close();
                     }else if(clickedItem != null && clickedItem.getType() == Material.ARROW & clickedItem.getItemMeta().getCustomModelData() == 0){

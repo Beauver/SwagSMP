@@ -13,6 +13,7 @@ com\beauver\swagsmp\handlers\KickHandler.class
 com\beauver\swagsmp\commands\moderation\BanCommand$1.class
 com\beauver\swagsmp\commands\ReportCommand$1.class
 com\beauver\swagsmp\util\CalculateDates.class
+com\beauver\swagsmp\discord\DiscordBot.class
 com\beauver\swagsmp\util\CodeGenerators.class
 com\beauver\swagsmp\SwagSMPCore.class
 com\beauver\swagsmp\listeners\PlayerDamage.class

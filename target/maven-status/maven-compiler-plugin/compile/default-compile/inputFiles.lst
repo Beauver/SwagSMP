@@ -1,5 +1,7 @@
 D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\listeners\PlayerJoin.java
 D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\commands\moderation\BanCommand.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\listeners\ChatListener.java
+D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\discord\DiscordBot.java
 D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\commands\moderation\ClearChatCommand.java
 D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\util\CodeGenerators.java
 D:\GitHub\SwagSMP\src\main\java\com\beauver\swagsmp\listeners\PlayerDamage.java
