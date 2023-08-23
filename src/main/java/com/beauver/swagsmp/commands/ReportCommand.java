@@ -52,7 +52,7 @@ public class ReportCommand extends BaseCommand {
             return;
         }else if(targetPlayer.getUniqueId().equals(player.getUniqueId())){
             player.sendMessage(MessageManager.messageGenerator("ERROR", "Report", "You can not report yourself."));
-//            return;
+            return;
         }else if(args.length == 1){
             player.sendMessage(MessageManager.messageGenerator("ERROR", "Report", "Please add a reasoning for your report."));
             return;
