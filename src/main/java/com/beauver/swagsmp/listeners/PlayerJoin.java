@@ -1,6 +1,7 @@
 package com.beauver.swagsmp.listeners;
 
 import com.beauver.swagsmp.SwagSMPCore;
+import com.beauver.swagsmp.discord.DiscordBot;
 import com.beauver.swagsmp.handlers.KickHandler;
 import com.beauver.swagsmp.util.MessageManager;
 import com.beauver.swagsmp.util.PlayerDataManager;
@@ -21,17 +22,21 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.awt.*;
 import java.util.Date;
 import java.util.UUID;
 
 public class PlayerJoin implements Listener {
     private final PlayerDataManager playerDataManager;
 
-    public PlayerJoin(PlayerDataManager playerDataManager) {
+    private final DiscordBot discordBot;
+
+    public PlayerJoin(PlayerDataManager playerDataManager, DiscordBot discordBot) {
         this.playerDataManager = playerDataManager;
+        this.discordBot = discordBot;
     }
     @EventHandler
-    public void onPlayerLogin(PlayerLoginEvent event) {
+    public void onPlayerLogin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         //setting the basic data to player file
         playerDataManager.createData(player.getUniqueId(), "username", player.getName());
@@ -41,8 +46,36 @@ public class PlayerJoin implements Listener {
         //sending messages
         player.sendMessage(MessageManager.messageGenerator("WARNING", "PvP",
                         Component.text("You can currently not engage in PvP."))
-                .append(Component.text("\nTo change this please write: /pvp")).clickEvent(ClickEvent.runCommand("/pvp")));
+                .append(Component.text("\nTo change this please write: /pvp or click here\n")).clickEvent(ClickEvent.runCommand("/pvp")).color(TextColor.fromHexString("#f09c0b")));
+
+        //Unmute on join (if needed)
+        if(playerDataManager.readDataBoolean(player.getUniqueId(), "muted")){
+            if(playerDataManager.readDataString(player.getUniqueId(), "muteExpires").equalsIgnoreCase("never")){
+                String appealCode = playerDataManager.readDataString(player.getUniqueId(), "mutedAppealCode");
+                String reason = playerDataManager.readDataString(player.getUniqueId(), "mutedReason");
+                player.sendMessage(MessageManager.messageGenerator("WARNING", "Mute", "You permanently are muted for: " + reason + "\nYour unmute appeal code is: " + appealCode + " (click to copy)").clickEvent(ClickEvent.copyToClipboard(appealCode)));
+            }else{
+                long timestamp = Long.parseLong(playerDataManager.readDataString(player.getUniqueId(), "muteExpires"));
+                Date expirationDate = new Date(timestamp);
+                if(new Date().after(expirationDate)){
+
+                    playerDataManager.updateData(player.getUniqueId(), "muted", false);
+                    playerDataManager.deleteData(player.getUniqueId(), "mutedBy");
+                    playerDataManager.deleteData(player.getUniqueId(), "mutedReason");
+                    playerDataManager.deleteData(player.getUniqueId(), "muteExpires");
+                    playerDataManager.deleteData(player.getUniqueId(), "mutedAppealCode");
+
+                    player.sendMessage(MessageManager.messageGenerator("WARNING", "Unmute", "You have been unmuted."));
+                    discordBot.embedBuilderMod("CONSOLE", "New Unmute", "Just unmuted: " + player.getName(), Color.RED);
+                }else{
+                    String appealCode = playerDataManager.readDataString(player.getUniqueId(), "mutedAppealCode");
+                    String reason = playerDataManager.readDataString(player.getUniqueId(), "mutedReason");
+                    player.sendMessage(MessageManager.messageGenerator("WARNING", "Mute", "You are muted for: " + reason + "\nUntil: " + expirationDate + "\nYour unmute appeal code is: " + appealCode + " (click to copy)").clickEvent(ClickEvent.copyToClipboard(appealCode)));
+                }
+            }
+        }
     }
+
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
         Player player = event.getPlayer();
@@ -84,8 +117,6 @@ public class PlayerJoin implements Listener {
                             .append(Component.text("never").color(TextColor.fromHexString("#f09c0b")));
                 }
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, kickMessage);
-            }else{
-
             }
         }else{
             if(playerDataManager.readDataString(playerUUID, "banReason") != null){

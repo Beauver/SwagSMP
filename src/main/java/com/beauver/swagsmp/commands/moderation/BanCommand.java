@@ -6,6 +6,7 @@ import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Description;
 import com.beauver.swagsmp.SwagSMPCore;
+import com.beauver.swagsmp.discord.DiscordBot;
 import com.beauver.swagsmp.handlers.KickHandler;
 import com.beauver.swagsmp.util.*;
 import com.destroystokyo.paper.profile.PlayerProfile;
@@ -26,9 +27,11 @@ import java.util.*;
 public class BanCommand extends BaseCommand {
 
     private final PlayerDataManager playerDataManager;
+    private final DiscordBot discordBot; // Make sure the discordBot is final
 
-    public BanCommand(PlayerDataManager playerDataManager) {
+    public BanCommand(PlayerDataManager playerDataManager, DiscordBot discordBot) {
         this.playerDataManager = playerDataManager;
+        this.discordBot = discordBot; // Initialize the discordBot instance
     }
 
     @CommandAlias("ban")
@@ -78,6 +81,7 @@ public class BanCommand extends BaseCommand {
                 KickHandler.kickBanPlayer(targetPlayerOnline, reason, player.getName(), appealCode);
             }
             player.sendMessage(MessageManager.messageGenerator("SUCCESS", "Ban", "Banned " + targetPlayer.getName() + " for: " + reason));
+            discordBot.embedBuilderMod(player.getName(), "New Ban", "Just Banned: " + targetPlayer.getName(), "Reason:", reason, "Duration:", "Never", java.awt.Color.RED);
             return;
         }
 
@@ -87,7 +91,7 @@ public class BanCommand extends BaseCommand {
         OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(target);
         String[] remainingArgs = Arrays.copyOfRange(args, 1, args.length);
 
-        reason = String.join(" ", remainingArgs);;
+        reason = String.join(" ", remainingArgs);
         String appealCode = "B_" + CodeGenerators.codeEight();
 
         int playerBannedAmount = playerDataManager.readDataInt(targetPlayer.getUniqueId(), "bannedAmount");
@@ -104,6 +108,8 @@ public class BanCommand extends BaseCommand {
         playerDataManager.createData(targetPlayer.getUniqueId(), "bannedAmount", playerBannedAmount);
 
         banList.addBan(targetPlayer.getPlayerProfile(), reason, (Date) null, player.getName());
+
+        discordBot.embedBuilderMod(player.getName(), "New Ban", "Just Banned: " + targetPlayer.getName(), "Reason:", reason, "Duration:", "Never", java.awt.Color.RED);
 
         if(targetPlayer.isOnline()){
             Player targetPlayerOnline = Bukkit.getPlayer(targetPlayer.getUniqueId());
@@ -163,6 +169,7 @@ public class BanCommand extends BaseCommand {
             playerDataManager.createData(targetPlayer.getUniqueId(), "banExpires", String.valueOf(unbanDate));
 
             banList.addBan(targetPlayer.getPlayerProfile(), reason, unbanDate, player.getName());
+            discordBot.embedBuilderMod(player.getName(), "New Ban", "Just Banned: " + targetPlayer.getName(), "Reason:", reason, "Duration:", String.valueOf(unbanDate), java.awt.Color.RED);
 
             if (targetPlayer.isOnline()) {
                 Player targetPlayerOnline = Bukkit.getPlayer(targetPlayer.getUniqueId());
@@ -213,6 +220,7 @@ public class BanCommand extends BaseCommand {
             KickHandler.kickBanPlayer(targetPlayerOnline, reason, player.getName(), appealCode, unbanDate);
         }
         player.sendMessage(MessageManager.messageGenerator("SUCCESS", "Ban", "Temporarily banned " + targetPlayer.getName() + " for: " + reason));
+        discordBot.embedBuilderMod(player.getName(), "New Ban", "Just Banned: " + targetPlayer.getName(), "Reason:", reason, "Expires:", String.valueOf(unbanDate), java.awt.Color.RED);
     }
 
     @CommandAlias("unban")
@@ -243,6 +251,7 @@ public class BanCommand extends BaseCommand {
         }else{
             player.sendMessage(MessageManager.messageGenerator("ERROR", "Unban", targetPlayer.getName() + " is currently not banned."));
         }
+        discordBot.embedBuilderMod(player.getName(), "New Unban", "Just Unbanned: " + targetPlayer.getName(), java.awt.Color.RED);
     }
 
     public void onUnban(Player player, String target){
@@ -260,6 +269,7 @@ public class BanCommand extends BaseCommand {
             playerDataManager.updateData(targetPlayer.getUniqueId(), "banned", false);
             player.sendMessage(MessageManager.messageGenerator("SUCCESS", "Unban", targetPlayer.getName() + " is now unbanned."));
         }
+        discordBot.embedBuilderMod(player.getName(), "New Unban", "Just Unbanned: " + targetPlayer.getName(), java.awt.Color.RED);
     }
 
     @CommandAlias("banlist")

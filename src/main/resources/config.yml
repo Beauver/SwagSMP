@@ -1,3 +1,5 @@
-DiscordBotToken: "REPLACE_WITH_TOKEN"
-ReportChannel: "REPLACE_WITH_REPORT_CHANNEL_ID"
-RandomChannel: "REPLACE_WITH_RANDOM_CHANNEL_ID"
+DiscordBotToken: "REPLACE_WITH_TOKEN" #Your discord bot token
+ReportChannel: "REPLACE_WITH_REPORT_CHANNEL_ID" #This will be where reports will be sent to.
+AdminChannel: "REPLACE_WITH_ADMIN_CHANNEL_ID" #This will be where bans, kicks, mutes, etc will be sent to.
+LinkChannel: "REPLACE_WITH_LINK_CHANNEL_ID" #This will be where bans, kicks, mutes, etc will be sent to.
+RandomChannel: "REPLACE_WITH_RANDOM_CHANNEL_ID" #This will likely be replaced

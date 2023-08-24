@@ -1,33 +1,33 @@
 package com.beauver.swagsmp;
 
-import co.aikar.commands.BaseCommand;
 import co.aikar.commands.PaperCommandManager;
 import com.beauver.swagsmp.commands.PvPCommand;
 import com.beauver.swagsmp.commands.ReportCommand;
+import com.beauver.swagsmp.commands.VerifyDiscordCommand;
 import com.beauver.swagsmp.commands.moderation.BanCommand;
 import com.beauver.swagsmp.commands.moderation.ClearChatCommand;
 import com.beauver.swagsmp.commands.moderation.KickCommand;
 import com.beauver.swagsmp.commands.moderation.MuteCommand;
 import com.beauver.swagsmp.discord.DiscordBot;
-import com.beauver.swagsmp.handlers.KickHandler;
 import com.beauver.swagsmp.listeners.ChatListener;
 import com.beauver.swagsmp.listeners.PlayerDamage;
 import com.beauver.swagsmp.util.PlayerDataManager;
 import com.beauver.swagsmp.listeners.PlayerJoin;
-import jdk.jshell.Snippet;
-import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import javax.security.auth.login.LoginException;
-
+import java.util.HashMap;
+import java.util.Map;
 
 public final class SwagSMPCore extends JavaPlugin {
     private PlayerDataManager playerDataManager;
-    private JDA jda;
+    private VerifyDiscordCommand verifyDiscordCommand;
     private DiscordBot discordBot;
+    private JDA jda;
     private static SwagSMPCore plugin;
+    public Map<String, String> playerLinkCodes = new HashMap<>();
     public static SwagSMPCore getPlugin() {
         return plugin;
     }
@@ -41,11 +41,7 @@ public final class SwagSMPCore extends JavaPlugin {
         getConfig().options().copyDefaults();
         saveDefaultConfig();
 
-        playerDataManager = new PlayerDataManager(this);
-
-        // Initialize the discordBot instance
-        enableDiscord();
-        discordBot = new DiscordBot(jda);
+        enableClasses();
 
         // Enable commands, listeners, etc.
         enableCommands();
@@ -55,25 +51,25 @@ public final class SwagSMPCore extends JavaPlugin {
         getLogger().info("|-----------------------------[ ENABLED SUCCESSFULLY ]---|");
     }
 
-
     public void enableCommands(){
         PaperCommandManager manager = new PaperCommandManager(this);
         //Moderation commands
-        manager.registerCommand(new BanCommand(playerDataManager));
-        manager.registerCommand(new KickCommand());
-        manager.registerCommand(new MuteCommand());
-        manager.registerCommand(new ClearChatCommand());
+        manager.registerCommand(new BanCommand(playerDataManager, discordBot));
+        manager.registerCommand(new KickCommand(discordBot));
+        manager.registerCommand(new MuteCommand(playerDataManager, discordBot));
+        manager.registerCommand(new ClearChatCommand(discordBot));
         //player commands
         manager.registerCommand(new PvPCommand(playerDataManager));
         manager.registerCommand(new ReportCommand(playerDataManager, discordBot));
+        manager.registerCommand(new VerifyDiscordCommand(playerDataManager));
 
         getLogger().info("|   Enabled commands                                     |");
     }
 
     public void enableListeners(){
 
-        this.getServer().getPluginManager().registerEvents(new ChatListener(), this);
-        this.getServer().getPluginManager().registerEvents(new PlayerJoin(playerDataManager), this);
+        this.getServer().getPluginManager().registerEvents(new ChatListener(playerDataManager, discordBot), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerJoin(playerDataManager, discordBot), this);
         this.getServer().getPluginManager().registerEvents(new PlayerDamage(playerDataManager), this);
         getLogger().info("|   Enabled listeners                                    |");
 
@@ -81,17 +77,35 @@ public final class SwagSMPCore extends JavaPlugin {
 
     public void enableDiscord(){
         this.jda = JDABuilder.createDefault(this.getConfig().getString("DiscordBotToken"))
-                .addEventListeners(new DiscordBot(jda))
+                .enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.MESSAGE_CONTENT)
+                .addEventListeners(new DiscordBot(jda, verifyDiscordCommand))
                 .build();
         getLogger().info("|   Discord Bot Enabled                                  |");
 
+    }
+
+    public void enableClasses(){
+
+        // Initialize the discordBot instance
+        playerDataManager = new PlayerDataManager(this);
+        verifyDiscordCommand = new VerifyDiscordCommand(playerDataManager);
+        enableDiscord();
+        discordBot = new DiscordBot(jda, verifyDiscordCommand);
     }
 
     @Override
     public void onDisable() {
         getLogger().info("|---[ SwagSMPCore ]--------------------------------------|");
         getLogger().info("|                                                        |");
+        disableDiscord();
         getLogger().info("|                                                        |");
         getLogger().info("|----------------------------[ DISABLED SUCCESSFULLY ]---|");
+    }
+
+    public void disableDiscord(){
+        if (jda != null && jda.getStatus() == JDA.Status.CONNECTED) {
+            jda.shutdownNow();
+            getLogger().info("|   Discord Bot Disabled                                 |");
+        }
     }
 }

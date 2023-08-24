@@ -19,4 +19,19 @@ public class CodeGenerators {
 
         return sb.toString();
     }
+    public static String codeTwelve() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        int codeLength = 12;
+
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(codeLength);
+
+        for (int i = 0; i < codeLength; i++) {
+            int randomIndex = random.nextInt(characters.length());
+            char randomChar = characters.charAt(randomIndex);
+            sb.append(randomChar);
+        }
+
+        return sb.toString();
+    }
 }

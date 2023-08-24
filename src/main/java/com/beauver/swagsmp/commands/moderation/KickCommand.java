@@ -5,6 +5,7 @@ import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandCompletion;
 import co.aikar.commands.annotation.CommandPermission;
 import co.aikar.commands.annotation.Description;
+import com.beauver.swagsmp.discord.DiscordBot;
 import com.beauver.swagsmp.handlers.KickHandler;
 import com.beauver.swagsmp.util.MessageManager;
 import com.beauver.swagsmp.util.PlayerDataManager;
@@ -12,15 +13,22 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.awt.*;
 import java.util.Arrays;
 
 public class KickCommand extends BaseCommand {
+
+    private final DiscordBot discordBot; // Make sure the discordBot is final
+
+    public KickCommand(DiscordBot discordBot) {
+        this.discordBot = discordBot; // Initialize the discordBot instance
+    }
 
     @CommandAlias("kick")
     @CommandCompletion("@players")
     @CommandPermission("swagsmp.moderation.kick")
     @Description("kick the specified player, with reason")
-    public static void onKick(Player player, String[] args){
+    public void onKick(Player player, String[] args){
 
         String[] splitArgs = String.join(" ", args).split("(?<=\\S)\\s+(?=\\S)");
         //splits the playerName from the joined argument list
@@ -49,5 +57,7 @@ public class KickCommand extends BaseCommand {
 
         KickHandler.kickPlayer(targetPlayer, reason, player.getName());
         player.sendMessage(MessageManager.messageGenerator("SUCCESS", "Kick", "Kicked " + targetPlayer.getName() + " for: " + reason));
+
+        discordBot.embedBuilderMod(player.getName(), "New Kick", "Just Kicked: " + targetPlayer.getName(), "Reason:", reason, Color.RED);
     }
 }
