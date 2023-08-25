@@ -81,7 +81,6 @@ public class VerifyDiscordCommand extends BaseCommand {
 
                 //send message if player exists
                 Objects.requireNonNull(Bukkit.getPlayer(storedUsername)).sendMessage(MessageManager.messageGenerator("SUCCESS", "Discord Link", "Your account is now linked to the discord user: " + event.getAuthor().getGlobalName()));
-                event.getMessage().delete().queue();
                 SwagSMPCore.getPlugin().playerLinkCodes.remove(storedUsername);
 
                 try{

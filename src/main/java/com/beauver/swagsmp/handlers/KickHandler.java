@@ -3,6 +3,7 @@ package com.beauver.swagsmp.handlers;
 import com.beauver.swagsmp.util.MessageManager;
 import com.beauver.swagsmp.util.PlayerDataManager;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -47,7 +48,7 @@ public class KickHandler {
                 .append(Component.text("\nExpires: ", Style.style(TextDecoration.BOLD)).color(TextColor.fromHexString("#d82625")))
                 .append(Component.text(String.valueOf(date))).color(TextColor.fromHexString("#f09c0b"))
                 .append(Component.text("\nAppeal Code: ", Style.style(TextDecoration.BOLD)).color(TextColor.fromHexString("#d82625")))
-                .append(Component.text(appealCode)).color(TextColor.fromHexString("#f09c0b")));
+                .append(Component.text(appealCode)).color(TextColor.fromHexString("#f09c0b")).clickEvent(ClickEvent.copyToClipboard(appealCode)));
 
     }
 }

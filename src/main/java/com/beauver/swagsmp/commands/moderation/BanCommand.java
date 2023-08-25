@@ -21,7 +21,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
+import org.yaml.snakeyaml.Yaml;
 
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class BanCommand extends BaseCommand {
@@ -31,7 +37,7 @@ public class BanCommand extends BaseCommand {
 
     public BanCommand(PlayerDataManager playerDataManager, DiscordBot discordBot) {
         this.playerDataManager = playerDataManager;
-        this.discordBot = discordBot; // Initialize the discordBot instance
+        this.discordBot = discordBot;
     }
 
     @CommandAlias("ban")
@@ -254,7 +260,8 @@ public class BanCommand extends BaseCommand {
         discordBot.embedBuilderMod(player.getName(), "New Unban", "Just Unbanned: " + targetPlayer.getName(), java.awt.Color.RED);
     }
 
-    public void onUnban(Player player, String target){
+    public void onUnban(String target){
+
         Plugin plugin = SwagSMPCore.getPlugin();
         OfflinePlayer targetPlayer = Bukkit.getOfflinePlayer(target);
 
@@ -267,9 +274,8 @@ public class BanCommand extends BaseCommand {
             playerDataManager.deleteData(targetPlayer.getUniqueId(), "banExpires");
             playerDataManager.deleteData(targetPlayer.getUniqueId(), "appealCode");
             playerDataManager.updateData(targetPlayer.getUniqueId(), "banned", false);
-            player.sendMessage(MessageManager.messageGenerator("SUCCESS", "Unban", targetPlayer.getName() + " is now unbanned."));
         }
-        discordBot.embedBuilderMod(player.getName(), "New Unban", "Just Unbanned: " + targetPlayer.getName(), java.awt.Color.RED);
+        discordBot.embedBuilderMod("DISCORD | CONSOLE", "New Unban", "Just Unbanned: " + targetPlayer.getName(), java.awt.Color.RED);
     }
 
     @CommandAlias("banlist")
@@ -368,7 +374,7 @@ public class BanCommand extends BaseCommand {
                         //get the item name
                         String itemName = itemMeta.getDisplayName();
                         //remove function
-                        onUnban(player, itemName);
+                        onUnban(player, new String[]{itemName});
                         onBanlist(player, new String[]{String.valueOf(finalNextPage)});
                     }else if(clickedItem != null && clickedItem.getType() == Material.BARRIER && clickedItem.getItemMeta().getCustomModelData() ==  1){
                         gui.close();
@@ -382,5 +388,33 @@ public class BanCommand extends BaseCommand {
                 }
             }
         }, SwagSMPCore.getPlugin());
+    }
+
+    public static List<String> getBannedPlayers(String directoryPath) throws IOException {
+        Path dirPath = Paths.get(directoryPath);
+        List<String> bannedPlayers = new ArrayList<>();
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath, "*.yml")) {
+            for (Path entry : stream) {
+                // Read the file content and check if the player is muted
+                if (isPlayerBanned(entry)) {
+                    String username = MuteCommand.getPlayerUsername(entry);
+                    bannedPlayers.add(username);
+                }
+            }
+        }
+
+        return bannedPlayers;
+    }
+
+    public static boolean isPlayerBanned(Path playerDataFile) {
+        try {
+            Yaml yaml = new Yaml();
+            Map<String, Object> data = yaml.load(Files.newInputStream(playerDataFile));
+            return data != null && data.containsKey("banned") && (boolean) data.get("banned");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

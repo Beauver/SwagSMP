@@ -1,5 +1,8 @@
 DiscordBotToken: "REPLACE_WITH_TOKEN" #Your discord bot token
 ReportChannel: "REPLACE_WITH_REPORT_CHANNEL_ID" #This will be where reports will be sent to.
 AdminChannel: "REPLACE_WITH_ADMIN_CHANNEL_ID" #This will be where bans, kicks, mutes, etc will be sent to.
-LinkChannel: "REPLACE_WITH_LINK_CHANNEL_ID" #This will be where bans, kicks, mutes, etc will be sent to.
+LinkChannel: "REPLACE_WITH_LINK_CHANNEL_ID" #This will be where you can verify with your discord account.
+AppealChannel: "REPLACE_WITH_APPEAL_CHANNEL_ID" #This will be where you can create request appeals
+AppealCategory: "REPLACE_WITH_APPEAL_CHANNEL_ID" #This will be where your request appeal channels are made
+MinecraftDiscordChannel: "REPLACE_WITH_MCDC_CHANNEL_ID" #This will be where your server minecraft chat will be sent to on discord
 RandomChannel: "REPLACE_WITH_RANDOM_CHANNEL_ID" #This will likely be replaced

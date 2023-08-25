@@ -2,21 +2,27 @@ package com.beauver.swagsmp.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.*;
+import com.beauver.swagsmp.discord.DiscordBot;
 import com.beauver.swagsmp.util.MessageManager;
 import com.beauver.swagsmp.util.PlayerDataManager;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.awt.*;
+
 @CommandAlias("pvp")
 @Description("Allows you to toggle between enabling or disabling pvp")
 public class PvPCommand extends BaseCommand {
     private final PlayerDataManager playerDataManager;
+    private final DiscordBot discordBot;
 
-    public PvPCommand(PlayerDataManager playerDataManager) {
+    public PvPCommand(PlayerDataManager playerDataManager, DiscordBot discordBot) {
         this.playerDataManager = playerDataManager;
+        this.discordBot = discordBot;
     }
 
     @Default
@@ -95,6 +101,6 @@ public class PvPCommand extends BaseCommand {
                 player1.sendMessage(MessageManager.messageGenerator("WARNING", "PvP OVERWRITE", player.getName() + " has just overwritten " + Bukkit.getOfflinePlayer(target).getName() + "'s PvP rules."));
             }
         }
-
+        discordBot.embedBuilderMod(player.getName(), "New PvP Override", player.getName() + " has overwritten: " + targetPlayer.getName() + "'s PvP rules", Color.RED);
     }
 }

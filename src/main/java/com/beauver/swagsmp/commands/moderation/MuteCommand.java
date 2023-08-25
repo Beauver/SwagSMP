@@ -233,6 +233,24 @@ public class MuteCommand extends BaseCommand {
         discordBot.embedBuilderMod(player.getName(), "New Unmute", "Just unmuted: " + target.getName(), Color.RED);
     }
 
+    public void onUnmute(String args) {
+
+        String targetName = args;
+        OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
+
+        playerDataManager.updateData(target.getUniqueId(), "muted", false);
+        playerDataManager.deleteData(target.getUniqueId(), "mutedBy");
+        playerDataManager.deleteData(target.getUniqueId(), "mutedReason");
+        playerDataManager.deleteData(target.getUniqueId(), "muteExpires");
+        playerDataManager.deleteData(target.getUniqueId(), "mutedAppealCode");
+
+        if (target.isOnline()) {
+            Player targetPlayer = Bukkit.getPlayer(target.getUniqueId());
+            targetPlayer.sendMessage(MessageManager.messageGenerator("WARNING", "Unmute", "You have been unmuted."));
+        }
+        discordBot.embedBuilderMod("DISCORD | CONSOLE", "New Unmute", "Just unmuted: " + target.getName(), Color.RED);
+    }
+
     @CommandAlias("mutelist")
     @CommandPermission("swagsmp.moderation.mutelist")
     @Description("See the list of people who are muted.")
@@ -293,11 +311,20 @@ public class MuteCommand extends BaseCommand {
                 List<Component> lore = new ArrayList<>();
                 lore.add(Component.text("Muted By: " + mutedBy));
                 lore.add(Component.text("Reason: " + reason));
+
                 if (expiration != null) {
-                    lore.add(Component.text("Expires: " + expiration.toString()));
-                } else {
-                    lore.add(Component.text("Expires: Never"));
+                    if (expiration.equalsIgnoreCase("never")) {
+                        lore.add(Component.text("Expires: Never"));
+                    } else if(new Date().after(new Date(Long.parseLong(playerDataManager.readDataString(target.getUniqueId(), "muteExpires"))))) {
+                        lore.add(Component.text("Expires: Expired (Mute is pending to be removed)"));
+                    } else {
+                        long timestamp = Long.parseLong(playerDataManager.readDataString(target.getUniqueId(), "muteExpires"));
+                        Date expirationDate = new Date(timestamp);
+                        lore.add(Component.text("Expires: " + expirationDate));
+                    }
                 }
+
+
                 lore.add(Component.text("Appeal code: "+ appealCode));
 
                 ItemStack skullPlayer = new ItemStack(Material.PLAYER_HEAD);

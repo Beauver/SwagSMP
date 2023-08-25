@@ -6,11 +6,14 @@ import com.beauver.swagsmp.handlers.KickHandler;
 import com.beauver.swagsmp.util.MessageManager;
 import com.beauver.swagsmp.util.PlayerDataManager;
 import com.destroystokyo.paper.profile.PlayerProfile;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
@@ -74,12 +77,34 @@ public class PlayerJoin implements Listener {
                 }
             }
         }
+
+        try {
+            TextChannel textChannel = discordBot.getTextChannel("MinecraftDiscordChannel");
+
+            EmbedBuilder embed = new EmbedBuilder()
+                    .setTitle(":wave: " + player.getName() + " joined the server.")
+                    .setColor(Color.GREEN); // Customize the embed color
+            textChannel.sendMessageEmbeds(embed.build()).queue();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         playerDataManager.createData(player.getUniqueId(), "isOnline", false);
+
+        try {
+            TextChannel textChannel = discordBot.getTextChannel("MinecraftDiscordChannel");
+
+            EmbedBuilder embed = new EmbedBuilder()
+                    .setTitle(":wave: " + player.getName() + " left the server.")
+                    .setColor(Color.RED); // Customize the embed color
+            textChannel.sendMessageEmbeds(embed.build()).queue();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @EventHandler
