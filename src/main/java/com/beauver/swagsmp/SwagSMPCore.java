@@ -1,6 +1,7 @@
 package com.beauver.swagsmp;
 
 import co.aikar.commands.PaperCommandManager;
+import com.beauver.swagsmp.commands.ChangeModelCommand;
 import com.beauver.swagsmp.commands.PvPCommand;
 import com.beauver.swagsmp.commands.ReportCommand;
 import com.beauver.swagsmp.commands.VerifyDiscordCommand;
@@ -71,6 +72,7 @@ public final class SwagSMPCore extends JavaPlugin {
         manager.registerCommand(new MuteCommand(playerDataManager, discordBot));
         manager.registerCommand(new ClearChatCommand(discordBot));
         //player commands
+        manager.registerCommand(new ChangeModelCommand());
         manager.registerCommand(new PvPCommand(playerDataManager, discordBot));
         manager.registerCommand(new ReportCommand(playerDataManager, discordBot));
         manager.registerCommand(new VerifyDiscordCommand(playerDataManager));
@@ -121,16 +123,16 @@ public final class SwagSMPCore extends JavaPlugin {
 
     public void disableDiscord(){
 
-        try {
-            TextChannel textChannel = jda.getTextChannelById(plugin.getConfig().getString("MinecraftDiscordChannel"));
-
-            EmbedBuilder embed = new EmbedBuilder()
-                    .setTitle(":x: Server closing!")
-                    .setColor(Color.RED); // Customize the embed color
-            textChannel.sendMessageEmbeds(embed.build()).queue();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            TextChannel textChannel = jda.getTextChannelById(plugin.getConfig().getString("MinecraftDiscordChannel"));
+//
+//            EmbedBuilder embed = new EmbedBuilder()
+//                    .setTitle(":x: Server closing!")
+//                    .setColor(Color.RED); // Customize the embed color
+//            textChannel.sendMessageEmbeds(embed.build()).queue();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
 
         if (jda != null && jda.getStatus() == JDA.Status.CONNECTED) {
             jda.shutdownNow();
