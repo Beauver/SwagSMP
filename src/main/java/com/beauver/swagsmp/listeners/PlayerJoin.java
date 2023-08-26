@@ -81,6 +81,10 @@ public class PlayerJoin implements Listener {
         try {
             TextChannel textChannel = discordBot.getTextChannel("MinecraftDiscordChannel");
 
+            if(textChannel == null){
+                return;
+            }
+
             EmbedBuilder embed = new EmbedBuilder()
                     .setTitle(":wave: " + player.getName() + " joined the server.")
                     .setColor(Color.GREEN); // Customize the embed color
@@ -97,6 +101,10 @@ public class PlayerJoin implements Listener {
 
         try {
             TextChannel textChannel = discordBot.getTextChannel("MinecraftDiscordChannel");
+
+            if(textChannel == null){
+                return;
+            }
 
             EmbedBuilder embed = new EmbedBuilder()
                     .setTitle(":wave: " + player.getName() + " left the server.")

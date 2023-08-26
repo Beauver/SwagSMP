@@ -131,6 +131,7 @@ public final class SwagSMPCore extends JavaPlugin {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
         if (jda != null && jda.getStatus() == JDA.Status.CONNECTED) {
             jda.shutdownNow();
             getLogger().info("|   Discord Bot Disabled                                 |");

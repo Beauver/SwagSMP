@@ -21,11 +21,13 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.awt.*;
@@ -59,6 +61,10 @@ public class DiscordBot extends ListenerAdapter {
         try {
             TextChannel textChannel = event.getJDA().getTextChannelById(plugin.getConfig().getString("MinecraftDiscordChannel"));
 
+            if(textChannel == null){
+                return;
+            }
+
             EmbedBuilder embed = new EmbedBuilder()
                     .setTitle(":white_check_mark: Server started!")
                     .setColor(Color.GREEN); // Customize the embed color
@@ -72,6 +78,11 @@ public class DiscordBot extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
 
         Category category = event.getJDA().getCategoryById(plugin.getConfig().getString("AppealCategory"));
+
+        if(category == null){
+            return;
+        }
+
         // Check if the message was sent in the #verify channel and is a command
         if (event.getChannel().getId().equals(plugin.getConfig().getString("LinkChannel"))){
             if(event.getMessage().getContentRaw().startsWith("!link")){
@@ -90,6 +101,9 @@ public class DiscordBot extends ListenerAdapter {
         }else if(event.getChannel().getId().equals(plugin.getConfig().getString("AppealChannel"))){
             //getting the appeal category
             Category category1 = event.getJDA().getCategoryById(Objects.requireNonNull(plugin.getConfig().getString("AppealCategory")));
+            if(category1 == null){
+                return;
+            }
             //getting the message content from discord
             String[] parts = event.getMessage().getContentRaw().split("\\s+");
             //removing any message
@@ -305,13 +319,20 @@ public class DiscordBot extends ListenerAdapter {
 
             if(!(event.getAuthor().isBot())){
                 String content = event.getMessage().getContentRaw();
-                Bukkit.broadcast(Component.text("<Discord: " + event.getAuthor().getGlobalName() + "> " + content));
+                Bukkit.broadcast(Component.text("<" )
+                        .append(Component.text("Discord: ").color(TextColor.fromHexString("#00ffff")))
+                        .append(Component.text(event.getAuthor().getGlobalName() + "> " + content)).color(TextColor.fromHexString("#FFFFFF")));
             }
         }
     }
 
     public void sendReport(String playerName, String targetName, String reportReason) {
         TextChannel channel = jda.getTextChannelById(Objects.requireNonNull(plugin.getConfig().getString("ReportChannel")));
+
+        if(channel == null){
+            return;
+        }
+
         if (channel != null) {
             EmbedBuilder embed = new EmbedBuilder()
                     .setTitle(playerName)
@@ -326,6 +347,11 @@ public class DiscordBot extends ListenerAdapter {
 
     public void embedBuilderMod(String title, String author, String description, Color color){
         TextChannel channel = jda.getTextChannelById(Objects.requireNonNull(plugin.getConfig().getString("AdminChannel")));
+
+        if(channel == null){
+            return;
+        }
+
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle(title)
                 .setAuthor(author)
@@ -337,6 +363,11 @@ public class DiscordBot extends ListenerAdapter {
 
     public void embedBuilderMod(String title, String author, String description, String field1Name, String field1Description, Color color){
         TextChannel channel = jda.getTextChannelById(Objects.requireNonNull(plugin.getConfig().getString("AdminChannel")));
+
+        if(channel == null){
+            return;
+        }
+
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle(title)
                 .setAuthor(author)
@@ -349,6 +380,11 @@ public class DiscordBot extends ListenerAdapter {
 
     public void embedBuilderMod(String title, String author, String description, String field1Name, String field1Description, String field2Name, String field2Description, Color color){
         TextChannel channel = jda.getTextChannelById(Objects.requireNonNull(plugin.getConfig().getString("AdminChannel")));
+
+        if(channel == null){
+            return;
+        }
+
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle(title)
                 .setAuthor(author)
@@ -364,5 +400,4 @@ public class DiscordBot extends ListenerAdapter {
         TextChannel channel = jda.getTextChannelById(plugin.getConfig().getString(configPath));
         return channel;
     }
-
 }

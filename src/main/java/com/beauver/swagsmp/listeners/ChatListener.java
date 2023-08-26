@@ -64,6 +64,10 @@ public class ChatListener implements Listener {
             try {
                 TextChannel textChannel = discordBot.getTextChannel("MinecraftDiscordChannel");
 
+                if(textChannel == null){
+                    return;
+                }
+
                 Component messageComponent = event.message();
                 String message = LegacyComponentSerializer.legacySection().serialize(messageComponent);
 
@@ -82,6 +86,15 @@ public class ChatListener implements Listener {
             TextChannel textChannel = discordBot.getTextChannel("MinecraftDiscordChannel");
 
             Component messageComponent = event.message();
+
+            if(messageComponent == null){
+                return;
+            }
+
+            if(textChannel == null){
+                return;
+            }
+
             String message = LegacyComponentSerializer.legacySection().serialize(messageComponent);
 
             EmbedBuilder embed = new EmbedBuilder()

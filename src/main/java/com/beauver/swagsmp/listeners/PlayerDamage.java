@@ -64,6 +64,10 @@ public class PlayerDamage implements Listener {
         try {
             TextChannel textChannel = discordBot.getTextChannel("MinecraftDiscordChannel");
 
+            if(textChannel == null){
+                return;
+            }
+
             EmbedBuilder embed = new EmbedBuilder()
                     .setTitle(":skull: " + death)
                     .setColor(Color.BLACK); // Customize the embed color
