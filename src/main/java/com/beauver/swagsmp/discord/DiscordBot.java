@@ -15,11 +15,16 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -27,8 +32,10 @@ import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.io.IOException;
@@ -71,6 +78,155 @@ public class DiscordBot extends ListenerAdapter {
             textChannel.sendMessageEmbeds(embed.build()).queue();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void onGuildReady(@NotNull GuildReadyEvent event) {
+        List<CommandData> commandData = new ArrayList<>();
+        commandData.add(Commands.slash("approve", "Approve a players appeal request.")
+                .addOption(OptionType.STRING, "minecraft_username", "The name of the minecraft user you want to approve", true));
+
+        commandData.add(Commands.slash("decline", "Decline a players appeal request."));
+
+        commandData.add(Commands.slash("mute", "Mute a player in minecraft.")
+                .addOption(OptionType.STRING, "minecraft_username", "The name of the minecraft user you want to mute.", true)
+                .addOption(OptionType.STRING, "mute_reason", "The reason of the mute", true));
+
+        commandData.add(Commands.slash("ban", "Ban a player in minecraft.")
+                .addOption(OptionType.STRING, "minecraft_username", "The name of the minecraft user you want to ban.", true)
+                .addOption(OptionType.STRING, "ban_reason", "The reason of the ban", true));
+
+        commandData.add(Commands.slash("tempmute", "Temporarily mute a player in minecraft.")
+                .addOption(OptionType.STRING, "minecraft_username", "The name of the minecraft user you want to mute.", true)
+                .addOption(OptionType.STRING, "time_unit", "For how long you want to mute this person. Example: 1d = 1 day", true)
+                .addOption(OptionType.STRING, "mute_reason", "The reason of the mute", true));
+
+        commandData.add(Commands.slash("tempban", "Temporarily ban a player in minecraft.")
+                .addOption(OptionType.STRING, "minecraft_username", "The name of the minecraft user you want to ban.", true)
+                .addOption(OptionType.STRING, "time_unit", "For how long you want to ban this person. Example: 1d = 1 day", true)
+                .addOption(OptionType.STRING, "ban_reason", "The reason of the ban", true));
+        event.getGuild().updateCommands().addCommands(commandData).queue();
+    }
+
+    @Override
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+
+        Category category = event.getJDA().getCategoryById(plugin.getConfig().getString("AppealCategory"));
+
+        if(event.getName().equals("approve")) {
+            if(event.getMember().hasPermission(Permission.MESSAGE_MANAGE)){
+                if (category.getChannels().contains(event.getChannel())) {
+                    if (event.getChannel().getName().contains("mute-appeal")) {
+                        String content = event.getOption("minecraft_username").getAsString();
+
+                        if(event.getOption("minecraft_username") == null){
+                            EmbedBuilder embed2 = new EmbedBuilder()
+                                    .setTitle("ERROR")
+                                    .setAuthor("Mute Appeal")
+                                    .setDescription("Please provide the username of the Minecraft player you'd like to unmute.")
+                                    .setColor(Color.RED) // Customize the embed color
+                                    .setTimestamp(Instant.now());
+                            event.replyEmbeds(embed2.build()).setEphemeral(true).queue();
+                            return;
+                        }
+
+                        EmbedBuilder embed2 = new EmbedBuilder()
+                                .setTitle("Approved")
+                                .setAuthor("Mute Appeal")
+                                .setDescription("Your mute appeal has been approved!\nRemoving channel in 1 minute!")
+                                .setColor(Color.GREEN) // Customize the embed color
+                                .setTimestamp(Instant.now());
+                        event.replyEmbeds(embed2.build()).queue();
+                        muteHandler.onUnmute(content);
+                        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+                        scheduler.schedule(() -> {
+                            event.getChannel().delete().queue();
+                        }, 1, TimeUnit.MINUTES);
+
+                    }else if(event.getChannel().getName().contains("ban-appeal")){
+                        String content = event.getOption("minecraft_username").getAsString();
+
+                        if(event.getOption("minecraft_username") == null){
+                            EmbedBuilder embed2 = new EmbedBuilder()
+                                    .setTitle("ERROR")
+                                    .setAuthor("Ban Appeal")
+                                    .setDescription("Please provide the username of the Minecraft player you'd like to unban.")
+                                    .setColor(Color.RED) // Customize the embed color
+                                    .setTimestamp(Instant.now());
+                            event.replyEmbeds(embed2.build()).setEphemeral(true).queue();
+                            return;
+                        }
+
+                        EmbedBuilder embed2 = new EmbedBuilder()
+                                .setTitle("Approved")
+                                .setAuthor("Ban Appeal")
+                                .setDescription("Your ban appeal has been approved!\nRemoving channel in 1 minute")
+                                .setColor(Color.GREEN) // Customize the embed color
+                                .setTimestamp(Instant.now());
+                        event.replyEmbeds(embed2.build()).queue();
+                        banHandler.onUnban(content);
+
+                        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+                        scheduler.schedule(() -> {
+                            event.getChannel().delete().queue();
+                        }, 1, TimeUnit.MINUTES);
+
+                    }
+                }else{
+                    event.reply("You have written this command in the wrong channel. Please write this in a appeal channel.").setEphemeral(true).queue();
+                }
+            }
+        }else if(event.getName().equals("decline")){
+            if(event.getMember().hasPermission(Permission.MESSAGE_MANAGE)){
+                if (category.getChannels().contains(event.getChannel())) {
+                    if (event.getChannel().getName().contains("mute-appeal")) {
+
+                        EmbedBuilder embed2 = new EmbedBuilder()
+                                .setTitle("Declined")
+                                .setAuthor("Mute Appeal")
+                                .setDescription("Your mute appeal has been declined!\nRemoving channel in 1 minute!")
+                                .setColor(Color.RED) // Customize the embed color
+                                .setTimestamp(Instant.now());
+                        event.replyEmbeds(embed2.build()).queue();
+                        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+                        scheduler.schedule(() -> {
+                            event.getChannel().delete().queue();
+                        }, 1, TimeUnit.MINUTES);
+
+                    }else if(event.getChannel().getName().contains("mute-appeal")){
+                        EmbedBuilder embed2 = new EmbedBuilder()
+                                .setTitle("Declined")
+                                .setAuthor("Ban Appeal")
+                                .setDescription("Your ban appeal has been declined!\nRemoving channel in 1 minute!")
+                                .setColor(Color.RED) // Customize the embed color
+                                .setTimestamp(Instant.now());
+                        event.replyEmbeds(embed2.build()).queue();
+                        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+                        scheduler.schedule(() -> {
+                            event.getChannel().delete().queue();
+                        }, 1, TimeUnit.MINUTES);
+                    }else{
+                        event.reply("You have written this command in the wrong channel. Please write this in a appeal channel.").setEphemeral(true).queue();
+                    }
+                }
+            }
+        }else if(event.getName().equals("mute")){
+            if(event.getMember().hasPermission(Permission.KICK_MEMBERS)){
+                muteHandler.onMute(event.getOption("minecraft_username").getAsString(), event.getOption("mute_reason").getAsString(), event.getUser().getName(), event);
+            }
+        }else if(event.getName().equals("ban")){
+            if(event.getMember().hasPermission(Permission.KICK_MEMBERS)){
+                banHandler.onBan(event.getOption("minecraft_username").getAsString(), event.getOption("ban_reason").getAsString(), event.getUser().getName(), event);
+            }
+        }else if(event.getName().equals("tempmute")){
+            if(event.getMember().hasPermission(Permission.KICK_MEMBERS)){
+                muteHandler.onTempmute(event.getOption("minecraft_username").getAsString(), event.getOption("time_unit").getAsString(), event.getOption("mute_reason").getAsString(), event.getUser().getName(), event);
+            }
+        }else if(event.getName().equals("tempban")){
+            if(event.getMember().hasPermission(Permission.KICK_MEMBERS)){
+                banHandler.onTempBan(event.getOption("minecraft_username").getAsString(), event.getOption("time_unit").getAsString(), event.getOption("ban_reason").getAsString(), event.getUser().getName(), event);
+            }
         }
     }
 
@@ -221,97 +377,98 @@ public class DiscordBot extends ListenerAdapter {
             }
         }else if(category.getChannels().contains(event.getChannel())){
 
-            if(event.getChannel().getName().contains("mute-appeal")){
+            if(event.getMember().hasPermission(Permission.MESSAGE_MANAGE)){
+                if(event.getChannel().getName().contains("mute-appeal")){
 
-                if(!(event.getAuthor().isBot())){
-                    String content = event.getMessage().getContentRaw();
-                    String[] args = content.split(" ");
+                    if(!(event.getAuthor().isBot())){
+                        String content = event.getMessage().getContentRaw();
+                        String[] args = content.split(" ");
 
-                    if (args.length >= 2) { // Make sure there are enough arguments
-                        String command = args[0];
-                        String argument = args[1];
+                        if (args.length >= 2) { // Make sure there are enough arguments
+                            String command = args[0];
+                            String argument = args[1];
 
-                        if (command.startsWith("!approve")) {
+                            if (command.startsWith("!approve")) {
+                                EmbedBuilder embed2 = new EmbedBuilder()
+                                        .setTitle("Approved")
+                                        .setAuthor("Mute Appeal")
+                                        .setDescription("Your mute appeal has been approved!\nRemoving channel in 1 minute!")
+                                        .setColor(Color.GREEN) // Customize the embed color
+                                        .setTimestamp(Instant.now());
+                                event.getChannel().sendMessageEmbeds(embed2.build()).queue();
+                                muteHandler.onUnmute(argument);
+                                ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+                                scheduler.schedule(() -> {
+                                    event.getChannel().delete().queue();
+                                }, 1, TimeUnit.MINUTES);
+                            }
+                        }else if(args.length == 1 && args[0].startsWith("!approve")){
                             EmbedBuilder embed2 = new EmbedBuilder()
-                                    .setTitle("Approved")
+                                    .setTitle("ERROR")
                                     .setAuthor("Mute Appeal")
-                                    .setDescription("Your mute appeal has been approved!\nRemoving channel in 1 minute!")
-                                    .setColor(Color.GREEN) // Customize the embed color
+                                    .setDescription("Please provide the username of the Minecraft player you'd like to unmute.")
+                                    .setColor(Color.RED) // Customize the embed color
                                     .setTimestamp(Instant.now());
                             event.getChannel().sendMessageEmbeds(embed2.build()).queue();
-                            muteHandler.onUnmute(argument);
-                            ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-                            scheduler.schedule(() -> {
-                                event.getChannel().delete().queue();
-                            }, 1, TimeUnit.MINUTES);
-                        }
-                    }else if(args.length == 1 && args[0].startsWith("!approve")){
-                        EmbedBuilder embed2 = new EmbedBuilder()
-                                .setTitle("ERROR")
-                                .setAuthor("Mute Appeal")
-                                .setDescription("Please provide the username of the Minecraft player you'd like to unmute.")
-                                .setColor(Color.RED) // Customize the embed color
-                                .setTimestamp(Instant.now());
-                        event.getChannel().sendMessageEmbeds(embed2.build()).queue();
-                    }else if(args.length == 1 && args[0].startsWith("!decline")){
-                        EmbedBuilder embed2 = new EmbedBuilder()
-                                .setTitle("Declined")
-                                .setAuthor("Mute Appeal")
-                                .setDescription("Your mute appeal has been declined!\nRemoving channel in 1 minute!")
-                                .setColor(Color.RED) // Customize the embed color
-                                .setTimestamp(Instant.now());
-                        event.getChannel().sendMessageEmbeds(embed2.build()).queue();
-                        event.getChannel().sendMessageEmbeds(embed2.build()).queue();
-                        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-                        scheduler.schedule(() -> {
-                            event.getChannel().delete().queue();
-                        }, 1, TimeUnit.MINUTES);
-                    }
-                }
-            }else if(event.getChannel().getName().contains("ban-appeal")){
-                if(!(event.getAuthor().isBot())){
-                    String content = event.getMessage().getContentRaw();
-                    String[] args = content.split(" ");
-
-                    if (args.length >= 2) { // Make sure there are enough arguments
-                        String command = args[0];
-                        String argument = args[1];
-
-                        if (command.startsWith("!approve")) {
+                        }else if(args.length == 1 && args[0].startsWith("!decline")){
                             EmbedBuilder embed2 = new EmbedBuilder()
-                                    .setTitle("Approved")
-                                    .setAuthor("Ban Appeal")
-                                    .setDescription("Your ban appeal has been approved!\nRemoving channel in 1 minute")
-                                    .setColor(Color.GREEN) // Customize the embed color
+                                    .setTitle("Declined")
+                                    .setAuthor("Mute Appeal")
+                                    .setDescription("Your mute appeal has been declined!\nRemoving channel in 1 minute!")
+                                    .setColor(Color.RED) // Customize the embed color
                                     .setTimestamp(Instant.now());
                             event.getChannel().sendMessageEmbeds(embed2.build()).queue();
-                            banHandler.onUnban(argument);
-
                             ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
                             scheduler.schedule(() -> {
                                 event.getChannel().delete().queue();
                             }, 1, TimeUnit.MINUTES);
                         }
-                    }else if(args.length == 1 && args[0].startsWith("!approve")){
-                        EmbedBuilder embed2 = new EmbedBuilder()
-                                .setTitle("ERROR")
-                                .setAuthor("Ban Appeal")
-                                .setDescription("Please provide the username of the Minecraft player you'd like to unban.")
-                                .setColor(Color.RED) // Customize the embed color
-                                .setTimestamp(Instant.now());
-                        event.getChannel().sendMessageEmbeds(embed2.build()).queue();
-                    }else if(args.length == 1 && args[0].startsWith("!decline")){
-                        EmbedBuilder embed2 = new EmbedBuilder()
-                                .setTitle("Declined")
-                                .setAuthor("Ban Appeal")
-                                .setDescription("Your ban appeal has been declined!\nRemoving channel in 1 minute!")
-                                .setColor(Color.RED) // Customize the embed color
-                                .setTimestamp(Instant.now());
-                        event.getChannel().sendMessageEmbeds(embed2.build()).queue();
-                        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-                        scheduler.schedule(() -> {
-                            event.getChannel().delete().queue();
-                        }, 1, TimeUnit.MINUTES);
+                    }
+                }else if(event.getChannel().getName().contains("ban-appeal")){
+                    if(!(event.getAuthor().isBot())){
+                        String content = event.getMessage().getContentRaw();
+                        String[] args = content.split(" ");
+
+                        if (args.length >= 2) { // Make sure there are enough arguments
+                            String command = args[0];
+                            String argument = args[1];
+
+                            if (command.startsWith("!approve")) {
+                                EmbedBuilder embed2 = new EmbedBuilder()
+                                        .setTitle("Approved")
+                                        .setAuthor("Ban Appeal")
+                                        .setDescription("Your ban appeal has been approved!\nRemoving channel in 1 minute")
+                                        .setColor(Color.GREEN) // Customize the embed color
+                                        .setTimestamp(Instant.now());
+                                event.getChannel().sendMessageEmbeds(embed2.build()).queue();
+                                banHandler.onUnban(argument);
+
+                                ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+                                scheduler.schedule(() -> {
+                                    event.getChannel().delete().queue();
+                                }, 1, TimeUnit.MINUTES);
+                            }
+                        }else if(args.length == 1 && args[0].startsWith("!approve")){
+                            EmbedBuilder embed2 = new EmbedBuilder()
+                                    .setTitle("ERROR")
+                                    .setAuthor("Ban Appeal")
+                                    .setDescription("Please provide the username of the Minecraft player you'd like to unban.")
+                                    .setColor(Color.RED) // Customize the embed color
+                                    .setTimestamp(Instant.now());
+                            event.getChannel().sendMessageEmbeds(embed2.build()).queue();
+                        }else if(args.length == 1 && args[0].startsWith("!decline")){
+                            EmbedBuilder embed2 = new EmbedBuilder()
+                                    .setTitle("Declined")
+                                    .setAuthor("Ban Appeal")
+                                    .setDescription("Your ban appeal has been declined!\nRemoving channel in 1 minute!")
+                                    .setColor(Color.RED) // Customize the embed color
+                                    .setTimestamp(Instant.now());
+                            event.getChannel().sendMessageEmbeds(embed2.build()).queue();
+                            ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+                            scheduler.schedule(() -> {
+                                event.getChannel().delete().queue();
+                            }, 1, TimeUnit.MINUTES);
+                        }
                     }
                 }
             }
@@ -325,6 +482,7 @@ public class DiscordBot extends ListenerAdapter {
             }
         }
     }
+
 
     public void sendReport(String playerName, String targetName, String reportReason) {
         TextChannel channel = jda.getTextChannelById(Objects.requireNonNull(plugin.getConfig().getString("ReportChannel")));

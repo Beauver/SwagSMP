@@ -27,6 +27,9 @@ import javax.security.auth.login.LoginException;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public final class SwagSMPCore extends JavaPlugin {
     private PlayerDataManager playerDataManager;
@@ -116,27 +119,39 @@ public final class SwagSMPCore extends JavaPlugin {
     public void onDisable() {
         getLogger().info("|---[ SwagSMPCore ]--------------------------------------|");
         getLogger().info("|                                                        |");
-        disableDiscord();
+        try {
+            disableDiscord();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         getLogger().info("|                                                        |");
         getLogger().info("|----------------------------[ DISABLED SUCCESSFULLY ]---|");
     }
 
-    public void disableDiscord(){
+    public void disableDiscord() throws InterruptedException{
 
-//        try {
-//            TextChannel textChannel = jda.getTextChannelById(plugin.getConfig().getString("MinecraftDiscordChannel"));
-//
-//            EmbedBuilder embed = new EmbedBuilder()
-//                    .setTitle(":x: Server closing!")
-//                    .setColor(Color.RED); // Customize the embed color
-//            textChannel.sendMessageEmbeds(embed.build()).queue();
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
+        try {
+            TextChannel textChannel = jda.getTextChannelById(plugin.getConfig().getString("MinecraftDiscordChannel"));
 
-        if (jda != null && jda.getStatus() == JDA.Status.CONNECTED) {
-            jda.shutdownNow();
-            getLogger().info("|   Discord Bot Disabled                                 |");
+            EmbedBuilder embed = new EmbedBuilder()
+                    .setTitle(":x: Server closing!")
+                    .setColor(Color.RED); // Customize the embed color
+            textChannel.sendMessageEmbeds(embed.build()).queue();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.schedule(() -> {
+            if (jda != null && jda.getStatus() == JDA.Status.CONNECTED) {
+                jda.shutdownNow();
+
+                try {
+                    jda.awaitShutdown();
+                    getLogger().info("|   Discord Bot Disabled                                 |");
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, 1000, TimeUnit.MILLISECONDS);
     }
 }

@@ -8,6 +8,7 @@ com\beauver\swagsmp\commands\ReportCommand.class
 com\beauver\swagsmp\commands\ChangeModelCommand.class
 com\beauver\swagsmp\handlers\KickHandler.class
 com\beauver\swagsmp\commands\moderation\BanCommand$1.class
+com\beauver\swagsmp\commands\ChangeModelCommand$1.class
 com\beauver\swagsmp\commands\moderation\MuteCommand.class
 com\beauver\swagsmp\util\GuiItems.class
 com\beauver\swagsmp\commands\VerifyDiscordCommand.class
