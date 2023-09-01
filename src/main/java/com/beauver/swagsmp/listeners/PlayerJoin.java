@@ -17,6 +17,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -118,6 +119,7 @@ public class PlayerJoin implements Listener {
     @EventHandler
     public void onPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
         PlayerProfile playerProfile = event.getPlayerProfile();
+        OfflinePlayer player = Bukkit.getOfflinePlayer(playerProfile.getId());
         UUID playerUUID = event.getUniqueId();
         BanList<PlayerProfile> banList = SwagSMPCore.getPlugin().getServer().getBanList(BanList.Type.PROFILE);
 
@@ -151,6 +153,13 @@ public class PlayerJoin implements Listener {
                 }
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, kickMessage);
             }
+        }else if(!player.isWhitelisted()){
+
+            Component kickMessage = MessageManager.messageGenerator("ERROR", "Kick", Component.text("", Style.style(TextDecoration.BOLD)))
+                    .append(Component.text("\nReason: ", Style.style(TextDecoration.BOLD)).color(TextColor.fromHexString("#d82625")))
+                    .append(Component.text("You are not whitelisted on our server.").color(TextColor.fromHexString("#f09c0b")));
+
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST, kickMessage);
         }else{
             if(playerDataManager.readDataString(playerUUID, "banReason") != null){
                 playerDataManager.deleteData(playerUUID, "banReason");

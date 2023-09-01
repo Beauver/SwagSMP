@@ -6,6 +6,7 @@ com\beauver\swagsmp\commands\PvPCommand.class
 com\beauver\swagsmp\enums\ItemModels.class
 com\beauver\swagsmp\commands\ReportCommand.class
 com\beauver\swagsmp\commands\ChangeModelCommand.class
+com\beauver\swagsmp\listeners\ChangeItems.class
 com\beauver\swagsmp\handlers\KickHandler.class
 com\beauver\swagsmp\commands\moderation\BanCommand$1.class
 com\beauver\swagsmp\commands\ChangeModelCommand$1.class

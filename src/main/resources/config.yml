@@ -5,4 +5,8 @@ LinkChannel: "REPLACE_WITH_LINK_CHANNEL_ID" #This will be where you can verify w
 AppealChannel: "REPLACE_WITH_APPEAL_CHANNEL_ID" #This will be where you can create request appeals
 AppealCategory: "REPLACE_WITH_APPEAL_CHANNEL_ID" #This will be where your request appeal channels are made
 MinecraftDiscordChannel: "REPLACE_WITH_MCDC_CHANNEL_ID" #This will be where your server minecraft chat will be sent to on discord
+
+EnableAutoWhitelist: false #Enable this to enable auto whitelisting from a google form.
+WhitelistChannel: "REPLACE_WITH_WHITELIST FORM" #This will be where your google forums webhook sends messages
+MinecraftUsernamePrefixWhitelist: "REPLACE_WITH_PREFIX_OF_USERNAME" #For example, IGN: Beauver, you're prefix is then "IGN:"
 RandomChannel: "REPLACE_WITH_RANDOM_CHANNEL_ID" #This will likely be replaced

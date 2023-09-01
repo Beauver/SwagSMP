@@ -36,8 +36,15 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.awt.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
@@ -479,6 +486,85 @@ public class DiscordBot extends ListenerAdapter {
                 Bukkit.broadcast(Component.text("<" )
                         .append(Component.text("Discord: ").color(TextColor.fromHexString("#00ffff")))
                         .append(Component.text(event.getAuthor().getGlobalName() + "> " + content)).color(TextColor.fromHexString("#FFFFFF")));
+            }
+        }else if(plugin.getConfig().getBoolean("EnableAutoWhitelist")){
+            if(event.getChannel().getId().equals(plugin.getConfig().getString("WhitelistChannel"))){
+                String messageContent = event.getMessage().getContentRaw();
+                String[] lines = messageContent.split("\n");
+
+                // Loop through each line to find the one containing "IGN:"
+                for (String line : lines) {
+                    if (line.contains(plugin.getConfig().getString("MinecraftUsernamePrefixWhitelist"))) {
+                        // Extract the username part
+                        String[] parts = line.split(plugin.getConfig().getString("MinecraftUsernamePrefixWhitelist"));
+                        if (parts.length > 1) {
+                            String username = parts[1].trim();
+
+                            File pluginsFolder = Bukkit.getPluginManager().getPlugin(plugin.getName()).getDataFolder().getParentFile();
+                            File swagSmpFolder = pluginsFolder.getParentFile();
+                            String filePath = new File(swagSmpFolder, "whitelist.json").getAbsolutePath();
+
+                            Bukkit.getServer().reloadWhitelist();
+
+                            JSONArray whitelist = new JSONArray();
+
+                            try {
+                                JSONParser parser = new JSONParser();
+                                File file = new File(filePath);
+
+                                if (file.exists()) {
+                                    Object obj = parser.parse(new FileReader(filePath));
+                                    whitelist = (JSONArray) obj;
+                                }
+                            } catch (IOException | ParseException e) {
+                                e.printStackTrace();
+                            }
+
+                            String playerUUID = Bukkit.getOfflinePlayer(username).getUniqueId().toString();
+                            boolean playerExistsInWhitelist = false;
+                            for (Object entryObj : whitelist) {
+                                if (entryObj instanceof JSONObject) {
+                                    JSONObject entry = (JSONObject) entryObj;
+                                    String uuid = (String) entry.get("uuid");
+
+                                    if (uuid != null && uuid.equals(playerUUID)) {
+                                        playerExistsInWhitelist = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (!playerExistsInWhitelist) {
+                                // The player's UUID does not exist in the whitelist, so add them
+                                JSONObject entry = new JSONObject();
+                                entry.put("uuid", playerUUID);
+                                entry.put("name", Bukkit.getOfflinePlayer(username).getName());
+                                whitelist.add(entry);
+
+                                try (FileWriter file = new FileWriter(filePath)) {
+                                    file.write(whitelist.toJSONString());
+
+                                    EmbedBuilder embed2 = new EmbedBuilder()
+                                            .setTitle(Bukkit.getOfflinePlayer(username).getName() + " has just been added to the whitelist.")
+                                            .setColor(Color.GREEN) // Customize the embed color
+                                            .setTimestamp(Instant.now());
+                                    event.getChannel().sendMessageEmbeds(embed2.build()).queue();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                EmbedBuilder embed2 = new EmbedBuilder()
+                                        .setTitle(Bukkit.getOfflinePlayer(username).getName() + " is already on the whitelist.")
+                                        .setColor(Color.RED) // Customize the embed color
+                                        .setTimestamp(Instant.now());
+                                event.getChannel().sendMessageEmbeds(embed2.build()).queue();
+                            }
+                            Bukkit.getServer().reloadWhitelist();
+                            break; // Exit the loop after finding the username
+                        }
+                    }
+                }
+                Bukkit.getServer().reloadWhitelist();
             }
         }
     }

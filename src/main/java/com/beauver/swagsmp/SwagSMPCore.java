@@ -12,6 +12,7 @@ import com.beauver.swagsmp.commands.moderation.MuteCommand;
 import com.beauver.swagsmp.discord.DiscordBot;
 import com.beauver.swagsmp.handlers.BanHandler;
 import com.beauver.swagsmp.handlers.MuteHandler;
+import com.beauver.swagsmp.listeners.ChangeItems;
 import com.beauver.swagsmp.listeners.ChatListener;
 import com.beauver.swagsmp.listeners.PlayerDamage;
 import com.beauver.swagsmp.util.PlayerDataManager;
@@ -87,6 +88,7 @@ public final class SwagSMPCore extends JavaPlugin {
         this.getServer().getPluginManager().registerEvents(new ChatListener(playerDataManager, discordBot), this);
         this.getServer().getPluginManager().registerEvents(new PlayerJoin(playerDataManager, discordBot), this);
         this.getServer().getPluginManager().registerEvents(new PlayerDamage(playerDataManager, discordBot), this);
+        this.getServer().getPluginManager().registerEvents(new ChangeItems(), this);
         getLogger().info("|   Enabled listeners                                    |");
 
     }

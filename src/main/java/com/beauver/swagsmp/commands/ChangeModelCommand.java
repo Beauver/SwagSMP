@@ -10,6 +10,7 @@ import com.beauver.swagsmp.util.GuiItems;
 import com.beauver.swagsmp.util.MessageManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -47,14 +48,19 @@ public class ChangeModelCommand extends BaseCommand {
         for (ItemModels customItem : ItemModels.values()) {
 
             //getting the swagCoins
-            ItemStack swagCoins = new ItemStack(Material.PAPER, customItem.getSwagCoinCost());
+            ItemStack swagCoins = new ItemStack(Material.PAPER, customItem.getSwagCoinCost() * currentItem.getAmount());
             ItemMeta swagCoinsMeta = swagCoins.getItemMeta();
+            List<Component> lore = new ArrayList<>();
+            lore.add(Component.text("Authentic Swag Coin"));
+
+            swagCoinsMeta.lore(lore);
             swagCoinsMeta.setCustomModelData(100);
+            swagCoinsMeta.displayName(Component.text("Swag Coin").color(TextColor.fromHexString("#FFD700")));
             swagCoins.setItemMeta(swagCoinsMeta);
 
             if (customItem.isValidMaterial(heldMaterial) && customItem.name().equals(itemName)){
                 if(customItem.getTransformable()){
-                    if(player.getInventory().containsAtLeast(swagCoins, customItem.getSwagCoinCost())){
+                    if(player.getInventory().containsAtLeast(swagCoins, customItem.getSwagCoinCost() * currentItem.getAmount())){
                         ItemMeta currentItemMeta = currentItem.getItemMeta();
                         if (currentItemMeta == null) {
                             currentItemMeta = Bukkit.getItemFactory().getItemMeta(currentItem.getType());
@@ -66,7 +72,7 @@ public class ChangeModelCommand extends BaseCommand {
 
                         player.sendMessage(MessageManager.messageGenerator("SUCCESS", "Change Model", "Successfully changed your item model to: " + customItem.getTextureName()));
                     }else{
-                        player.sendMessage(MessageManager.messageGenerator("ERROR", "Change Model", "You do not have enough swag coins in your inventory.\nYou need at least: " + customItem.getSwagCoinCost() + " swag coins"));
+                        player.sendMessage(MessageManager.messageGenerator("ERROR", "Change Model", "You do not have enough swag coins in your inventory.\nYou need at least: " + customItem.getSwagCoinCost() * currentItem.getAmount() + " swag coins"));
                     }
                     return;
                 }else{
@@ -141,7 +147,7 @@ public class ChangeModelCommand extends BaseCommand {
             }
 
             if(customItem.getTransformable()){
-                lore.add(Component.text("Cost: " + customItem.getSwagCoinCost() + " Swag Coins"));
+                lore.add(Component.text("Cost: " + customItem.getSwagCoinCost() + " Swag Coins per model"));
             }else{
                 lore.add(Component.text("Unobtainable via /model"));
             }
