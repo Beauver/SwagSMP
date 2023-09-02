@@ -2,7 +2,6 @@ package com.beauver.swagsmp.listeners;
 
 import com.beauver.swagsmp.SwagSMPCore;
 import com.beauver.swagsmp.discord.DiscordBot;
-import com.beauver.swagsmp.handlers.KickHandler;
 import com.beauver.swagsmp.util.MessageManager;
 import com.beauver.swagsmp.util.PlayerDataManager;
 import com.destroystokyo.paper.profile.PlayerProfile;
@@ -13,7 +12,6 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
@@ -23,7 +21,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.awt.*;

@@ -569,7 +569,6 @@ public class DiscordBot extends ListenerAdapter {
         }
     }
 
-
     public void sendReport(String playerName, String targetName, String reportReason) {
         TextChannel channel = jda.getTextChannelById(Objects.requireNonNull(plugin.getConfig().getString("ReportChannel")));
 
