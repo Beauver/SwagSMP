@@ -17,7 +17,7 @@ public class PlayerDataManager {
 
     public PlayerDataManager(Plugin plugin) {
         this.plugin = plugin;
-        this.dataFolder = new File(Bukkit.getPluginsFolder().getAbsolutePath(), "SwagSMPCore/playerData");
+        this.dataFolder = new File(Bukkit.getPluginsFolder().getAbsolutePath(), plugin.getName() + "/playerData");
 
         boolean directoriesCreated = dataFolder.mkdirs();
         if (!directoriesCreated && !(dataFolder.exists())) {
